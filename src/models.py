@@ -88,6 +88,10 @@ class Favoritos(db.Model):
     def serialize(self):
         return {
             "id": self.id,
+            "usuario_id": self.usuario_id,
+            "personajes_id": self.personajes_id,
+            "planetas_id": self.planetas_id,
+            "vehicles_id": self.vehicles_id
             # "agregar": self.agregar,
             # "eliminar": self.eliminar
             # do not serialize the password, its a security breach
