@@ -3,6 +3,7 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 """
 import os
 from flask import Flask, request, jsonify, url_for
+import json
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from flask_cors import CORS
@@ -36,14 +37,78 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
-@app.route('/user', methods=['GET'])
-def handle_hello():
+#a partir de aca empiezan los endpoints
 
-    response_body = {
-        "msg": "Hello, this is your GET /user response "
-    }
+@app.route('/personajes', methods=['GET'])
+def handle_personajes():
+    allpersonajes = Personajes.query.all()
+    results = list(map(lambda item: item.serialize(),allpersonajes))
 
-    return jsonify(response_body), 200
+    return jsonify(results), 200
+
+#obteniendo info de un solo user
+@app.route('/personajes/<int:personajes_id>', methods=['GET'])
+def get_info_personajes(personajes_id):
+    
+    personajes = Personajes.query.filter_by(id=personajes_id).first()
+    return jsonify(personajes.serialize()), 200
+
+@app.route('/planetas', methods=['GET'])
+def handle_planetas():
+    allplanetas = Planetas.query.all()
+    results = list(map(lambda item: item.serialize(),allplanetas))
+
+    return jsonify(results), 200
+
+#obteniendo info de un solo user
+@app.route('/planetas/<int:planetas_id>', methods=['GET'])
+def get_info_planetas(planetas_id):
+    
+    planetas = Planetas.query.filter_by(id=planetas_id).first()
+    return jsonify(planetas.serialize()), 200
+
+@app.route('/usuario', methods=['GET'])
+def handle_usuario():
+    allusuario= Usuario.query.all()
+    results = list(map(lambda item: item.serialize(),allusuario))
+
+    return jsonify(results), 200
+
+# obteniendo info de un solo user
+@app.route('/usuario/<int:usuario_id>/favoritos/', methods=['GET'])
+def get_favoritos_usuario(usuario_id):
+    
+    usuario_favoritos = Favoritos.query.filter_by(usuario_id=usuario_id).all()
+    results = list(map(lambda item: item.serialize(),usuario_favoritos))
+    print(results)
+    return jsonify(results), 200
+    # return jsonify({"msg":"funciona"})
+    
+# @app.route('/usuario/<int:usuario_id>/favoritos/', methods=['GET'])
+# def get_favoritos_usuario(usuario_id):
+    
+#     usuario_favoritos = Favoritos.query.filter_by(usuario_id=usuario_id).all()
+#     results = list(map(lambda item: item.serialize(),usuario_favoritos))
+#     print(results)
+#     return jsonify(results), 200
+
+# Acá va el POST
+@app.route('/usuario/<int:usuario_id>/favoritos/planetas', methods=['POST'])
+def add_new_favourite_planet(usuario_id):
+    request_body = request.json
+    print(request_body)
+    add_new_planets_fav=Favoritos(planetas_id=request_body["planetas_id"], usuario_id=request_body["usuario_id"], personajes_id=request_body["personajes_id"], vehicles_id=request_body["vehicles_id"])
+    print(add_new_planets_fav.serialize())
+    # consulta_planetas_favoritos = Favoritos.query.filter_by(planetas_id=planetas_id).all()
+    # planetas_favoritos_user = User('admin', 'admin@example.com')
+    # db.session.add(me)
+    # db.session.commit()
+    # results = list(map(lambda item: item.serialize(),añadir_planetas_a_favoritos))
+    # print(results)
+    # return jsonify(results), 200
+    return jsonify({"msg":"funciona"}),200
+
+#terminan los endpoints
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
