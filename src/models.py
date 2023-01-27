@@ -53,7 +53,7 @@ class Personajes(db.Model):
     favoritos_personajes = db.relationship('Favoritos', backref='personajes', lazy=True)
     # favoritos = relationship(Favoritos)
     def __repr__(self):
-        return '<Usuario %r>' % self.id
+        return '<Personajes %r>' % self.id
 
     def serialize(self):
         return {

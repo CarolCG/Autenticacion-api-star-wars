@@ -92,21 +92,59 @@ def get_favoritos_usuario(usuario_id):
 #     print(results)
 #     return jsonify(results), 200
 
-# Acá va el POST
+# Acá va el POST de USUARIO POR PLANETA FAVORITO
 @app.route('/usuario/<int:usuario_id>/favoritos/planetas', methods=['POST'])
 def add_new_favourite_planet(usuario_id):
     request_body = request.json
     print(request_body)
-    add_new_planets_fav=Favoritos(planetas_id=request_body["planetas_id"], usuario_id=request_body["usuario_id"], personajes_id=request_body["personajes_id"], vehicles_id=request_body["vehicles_id"])
-    print(add_new_planets_fav.serialize())
-    # consulta_planetas_favoritos = Favoritos.query.filter_by(planetas_id=planetas_id).all()
-    # planetas_favoritos_user = User('admin', 'admin@example.com')
-    # db.session.add(me)
-    # db.session.commit()
-    # results = list(map(lambda item: item.serialize(),añadir_planetas_a_favoritos))
-    # print(results)
-    # return jsonify(results), 200
-    return jsonify({"msg":"funciona"}),200
+    print(usuario_id)
+    new_favorito = Favoritos(usuario_id=usuario_id, planetas_id=request_body["planetas_id"])
+    db.session.add(new_favorito)
+    db.session.commit()
+    usuario = Favoritos.query.filter_by(usuario_id=usuario_id).first()
+    print(usuario)
+    return jsonify(request_body),200
+
+# Acá va el POST de USUARIO POR PERSONAJE FAVORITO
+@app.route('/usuario/<int:usuario_id>/favoritos/personajes', methods=['POST'])
+def add_new_favourite_personajes(usuario_id):
+    request_body = request.json
+    print(request_body)
+    print(usuario_id)
+    new_favorito_to_personajes = Favoritos(usuario_id=usuario_id, personajes_id=request_body["personajes_id"])
+    db.session.add(new_favorito_to_personajes)
+    db.session.commit()
+    usuario_personajes = Favoritos.query.filter_by(usuario_id=usuario_id).first()
+    print(usuario_personajes)
+    return jsonify(request_body),200
+
+# ACÁ COMIENZAN LOS DELETES DE PERSONAJES
+@app.route('/usuario/<int:usuario_id>/favoritos/personajes', methods=['DELETE'])
+def eliminar_new_favourite_personajes(usuario_id):
+    request_body = request.json
+    print(request_body)
+    print(usuario_id)
+    eliminar_favorito_to_personajes = Favoritos(usuario_id=usuario_id, personajes_id=request_body["personajes_id"])
+    db.session.delete(eliminar_favorito_to_personajes)
+    db.session.commit()
+    usuario_personajes_eliminar = Favoritos.query.filter_by(usuario_id=usuario_id).first()
+    print(usuario_personajes_eliminar)
+    return jsonify(request_body),200
+
+# ACÁ VAN LOS DELETES DE PLANETAS
+# @app.route('/usuario/<int:usuario_id>/favoritos/planetas', methods=['DELETE'])
+# def eliminar_new_favourite_planet(usuario_id):
+#     request_body = request.json
+#     print(request_body)
+#     print(usuario_id)
+#     new_favorito_eliminar = Favoritos(usuario_id=usuario_id, planetas_id=request_body["planetas_id"])
+#     db.session.delete(new_favorito_eliminar)
+#     db.session.commit()
+#     usuario_eliminar = Favoritos.query.filter_by(usuario_id=usuario_id).first()
+#     print(usuario_eliminar)
+#     return jsonify(request_body),200
+
+
 
 #terminan los endpoints
 
