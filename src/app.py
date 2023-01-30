@@ -11,6 +11,8 @@ from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, Usuario, Personajes, Favoritos, Vehicles, Planetas
 #from models import Person
+from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required, JWTManager
+
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False
@@ -26,6 +28,47 @@ MIGRATE = Migrate(app, db)
 db.init_app(app)
 CORS(app)
 setup_admin(app)
+
+app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
+jwt = JWTManager(app)
+
+# Create a route to authenticate your users and return JWTs. The
+# create_access_token() function is used to actually generate the JWT.
+
+# Renderizar formulario de Inicio de sesión
+@app.route("/login", methods=["POST"])
+def login():
+    name = request.json.get("name", None)
+    password = request.json.get("password", None)
+    usuario_login = Usuario.query.filter_by(name=name).first()
+    if name!= usuario_login.name or password != usuario_login.password:
+        return jsonify({"msg": "Bad username or password"}), 401
+
+    access_token = create_access_token(identity=name)
+    return jsonify(access_token=access_token)
+
+# Renderizar formulario de registro
+@app.route("/signup", methods=["POST"])
+def signup():
+    name = request.json.get("name", None)
+    password = request.json.get("password", None)
+    usuario_login = Usuario.query.filter_by(name=name).first()
+    if name!= usuario_login.name or password != usuario_login.password:
+        return jsonify({"msg": "Bad username or password"}), 401
+
+    access_token = create_access_token(identity=name)
+    return jsonify(access_token=access_token)
+
+
+# Protect a route with jwt_required, which will kick out requests
+# without a valid JWT present.
+@app.route("/private", methods=["GET"])
+@jwt_required()
+def protected():
+    # Access the identity of the current user with get_jwt_identity
+    current_user = get_jwt_identity()
+    usuario_private = Usuario.query.filter_by(name=current_user).first()
+    return jsonify(logged_in_as=usuario_private.serialize()), 200
 
 # Handle/serialize errors like a JSON object
 @app.errorhandler(APIException)
