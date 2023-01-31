@@ -38,13 +38,13 @@ jwt = JWTManager(app)
 # Renderizar formulario de Inicio de sesión
 @app.route("/login", methods=["POST"])
 def login():
-    name = request.json.get("name", None)
+    email = request.json.get("email", None)
     password = request.json.get("password", None)
-    usuario_login = Usuario.query.filter_by(name=name).first()
-    if name!= usuario_login.name or password != usuario_login.password:
+    usuario_login = Usuario.query.filter_by(email=email).first()
+    if email!= usuario_login.email or password != usuario_login.password:
         return jsonify({"msg": "Bad username or password"}), 401
 
-    access_token = create_access_token(identity=name)
+    access_token = create_access_token(identity=email)
     return jsonify(access_token=access_token)
 
 # Renderizar formulario de registro
