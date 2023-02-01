@@ -50,14 +50,31 @@ def login():
 # Renderizar formulario de registro
 @app.route("/signup", methods=["POST"])
 def signup():
-    name = request.json.get("name", None)
-    password = request.json.get("password", None)
-    usuario_login = Usuario.query.filter_by(name=name).first()
-    if name!= usuario_login.name or password != usuario_login.password:
-        return jsonify({"msg": "Bad username or password"}), 401
+    # name = request.json.get("name", None)
+    # password = request.json.get("password", None)
+    # usuario_login = Usuario.query.filter_by(name=name).first()
+    # if name!= usuario_login.name or password != usuario_login.password:
+    #     return jsonify({"msg": "Bad username or password"}), 401
 
-    access_token = create_access_token(identity=name)
-    return jsonify(access_token=access_token)
+    # access_token = create_access_token(identity=name)
+    # return jsonify(access_token=access_token)}
+    body = json.loads(request.data)
+    
+    user = Usuario.query.filter_by(email=body["email"]).first() 
+    
+    if user is None:
+            newUser = Usuario(name=body["name"], email=body["email"], password=body["password"])
+            db.session.add(newUser)
+            db.session.commit()
+            response_body = {
+                "msg": "El usuario fue creado con exito"
+            }
+            return jsonify(response_body), 200
+
+    response_body = {
+            "msg": "User exist in the system"
+        }
+    return jsonify(response_body), 400
 
 
 # Protect a route with jwt_required, which will kick out requests
